@@ -23,7 +23,7 @@
 #include <array>
 #include <optional>
 #include <set>
-#include <unordered_map>
+#include <map>
 #include <string>
 using namespace std;
 
@@ -38,11 +38,6 @@ using namespace std;
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/hash.hpp"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
-#define TINYOBJLOADER_IMPLEMENTATION
-#include "tiny_obj_loader.h"
 
 
 
