@@ -153,6 +153,16 @@ class comp  //custom comparator
 {
 public:
 
+	bool operator()(const glm::vec3& left, const glm::vec3& right) const
+	{
+		if (f(left, right))
+			return true;
+		else if (f(right, left))
+			return false;
+
+		return false;
+	}
+
 	bool f(const glm::vec3& left, const glm::vec3& right) const
 	{
 		if (right.x > left.x)
@@ -1487,7 +1497,7 @@ private:
 		indexed_vertex_3 vertex[3];
 	};
 
-	void get_vertex_normals_from_triangles(vector<triangle>& triangles, vector<glm::vec3>& vertex_normals)
+	void get_vertex_normals_from_triangles(vector<triangle>& triangles, map<glm::vec3, glm::vec3, comp> &vertex_normals)
 	{
 		vector<glm::vec3> face_normals;
 		vector<glm::vec3> vertices;
@@ -1558,7 +1568,7 @@ private:
 
 		cout << "Calculating normals" << endl;
 		face_normals.resize(triangles.size());
-		vertex_normals.resize(vertices.size());
+		//vertex_normals.resize(vertices.size());
 
 		for (size_t i = 0; i < triangles.size(); i++)
 		{
@@ -1575,20 +1585,33 @@ private:
 			face_normals[i] = cross(v0, v1);
 			face_normals[i] = normalize(face_normals[i]);
 
-			vertex_normals[triangles[i].vertex[0].index] += face_normals[i];
-			vertex_normals[triangles[i].vertex[1].index] += face_normals[i];
-			vertex_normals[triangles[i].vertex[2].index] += face_normals[i];
+			glm::vec3 tv0, tv1, tv2;
+			
+			tv0.x = triangles[i].vertex[0].x;
+			tv0.y = triangles[i].vertex[0].y;
+			tv0.z = triangles[i].vertex[0].z;
+			tv1.x = triangles[i].vertex[1].x;
+			tv1.y = triangles[i].vertex[1].y;
+			tv1.z = triangles[i].vertex[1].z;
+			tv2.x = triangles[i].vertex[2].x;
+			tv2.y = triangles[i].vertex[2].y;
+			tv2.z = triangles[i].vertex[2].z;
+
+			vertex_normals[tv0] += face_normals[i];
+			vertex_normals[tv1] += face_normals[i];
+			vertex_normals[tv2] += face_normals[i];
 		}
 
-		for (size_t i = 0; i < vertex_normals.size(); i++)
-			vertex_normals[i] = normalize(vertex_normals[i]);
+		for(map<glm::vec3, glm::vec3>::iterator i = vertex_normals.begin(); i != vertex_normals.end(); i++)
+//		for (size_t i = 0; i < vertex_normals.size(); i++)
+			i->second = normalize(i->second);
 	}
 
 
 	void loadModel_STL(void)
 	{
 		vector<triangle> t;
-		vector<glm::vec3> vertex_normals;
+
 
 		ifstream in("fractal.stl", ios_base::binary);
 
@@ -1658,20 +1681,9 @@ private:
 
 		in.close();
 
-
-
-
-
-
-
-
-
-
+		map<glm::vec3, glm::vec3, comp> vertex_normals;
 		get_vertex_normals_from_triangles(t, vertex_normals);
-
 		std::map<Vertex, uint32_t, comp> uniqueVertices{};
-
-		size_t vn_count = 0;
 
 		for (size_t i = 0; i < t.size(); i++)
 		{
@@ -1685,6 +1697,8 @@ private:
 					t[i].vertex[j].z
 				};
 
+				vertex.normal = vertex_normals[vertex.pos];
+				
 				if (uniqueVertices.count(vertex) == 0)
 				{
 					uniqueVertices[vertex] = static_cast<uint32_t>(final_vertices.size());
@@ -1695,66 +1709,9 @@ private:
 			}
 		}
 
-		for (size_t i = 0; i < final_vertices.size(); i++)
-		{
-			final_vertices[i].normal = vertex_normals[vertex_normals.size() - 1 - i];
-
-		}
-
-
-
-		cout << final_indices.size() << endl;
-		cout << uniqueVertices.size() << endl;
-		cout << vertex_normals.size() << endl;
-
-
-
 		return;
 	}
 
-
-	//void loadModel()
-	//{
-	//    tinyobj::attrib_t attrib;
-	//    std::vector<tinyobj::shape_t> shapes;
-	//    std::vector<tinyobj::material_t> materials;
-	//    std::string warn, err;
-
-	//    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH.c_str())) {
-	//        throw std::runtime_error(warn + err);
-	//    }
-
-	//    std::map<Vertex, uint32_t, comp> uniqueVertices{};
-
-	//    for (const auto& shape : shapes)
-	//    {
-	//        for (const auto& index : shape.mesh.indices)
-	//        {
-	//            Vertex vertex{};
-
-	//            vertex.pos = {
-	//                attrib.vertices[3 * index.vertex_index + 0],
-	//                attrib.vertices[3 * index.vertex_index + 1],
-	//                attrib.vertices[3 * index.vertex_index + 2]
-	//            };
-
-	//            //vertex.texCoord = {
-	//            //    attrib.texcoords[2 * index.texcoord_index + 0],
-	//            //    1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-	//            //};
-
-	//            vertex.normal = normalize(vertex.pos);// = { 1.0f, 1.0f, 1.0f };
-
-	//            if (uniqueVertices.count(vertex) == 0)
-	//            {
-	//                uniqueVertices[vertex] = static_cast<uint32_t>(final_vertices.size());
-	//                final_vertices.push_back(vertex);
-	//            }
-
-	//            final_indices.push_back(uniqueVertices[vertex]);
-	//        }
-	//    }
-	//}
 
 	void createVertexBuffer() {
 		VkDeviceSize bufferSize = sizeof(final_vertices[0]) * final_vertices.size();
