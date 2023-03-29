@@ -140,13 +140,13 @@ struct Vertex {
     }
 };
 
-//namespace std {
-//    template<> struct hash<Vertex> {
-//        size_t operator()(Vertex const& vertex) const {
-//            return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.normal) << 1)) >> 1);
-//        }
-//    };
-//}
+namespace std {
+    template<> struct hash<Vertex> {
+        size_t operator()(Vertex const& vertex) const {
+            return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.normal) << 1)) >> 1);
+        }
+    };
+}
 
 
 class comp  //custom comparator
@@ -312,12 +312,11 @@ public:
 void get_vertex_normals_from_triangles(vector<triangle>& triangles, vector<glm::vec3>& vertex_normals)
 {
     vector<glm::vec3> face_normals;
-    vector<glm::vec3> vertices;
-    vertex_normals.clear();
+    vector<glm::vec3> v;
+
 
     face_normals.clear();
-    vertices.clear();
-    vertex_normals.clear();
+    v.clear();
 
     if (0 == triangles.size())
         return;
@@ -353,7 +352,7 @@ void get_vertex_normals_from_triangles(vector<triangle>& triangles, vector<glm::
     for (size_t i = 0; i < vv.size(); i++)
     {
         glm::vec3 vv_element(vv[i].x, vv[i].y, vv[i].z);
-        vertices.push_back(vv_element);
+        v.push_back(vv_element);
     }
 
     vertex_set.clear();
@@ -383,7 +382,7 @@ void get_vertex_normals_from_triangles(vector<triangle>& triangles, vector<glm::
 
     cout << "Calculating normals" << endl;
     face_normals.resize(triangles.size());
-    vertex_normals.resize(vertices.size());
+    vertex_normals.resize(v.size());
 
     for (size_t i = 0; i < triangles.size(); i++)
     {
@@ -400,9 +399,9 @@ void get_vertex_normals_from_triangles(vector<triangle>& triangles, vector<glm::
         face_normals[i] = cross(v0, v1);
         face_normals[i] = normalize(face_normals[i]);
 
-        vertex_normals[triangles[i].vertex[0].index] = vertex_normals[triangles[i].vertex[0].index] + face_normals[i];
-        vertex_normals[triangles[i].vertex[1].index] = vertex_normals[triangles[i].vertex[1].index] + face_normals[i];
-        vertex_normals[triangles[i].vertex[2].index] = vertex_normals[triangles[i].vertex[2].index] + face_normals[i];
+        vertex_normals[triangles[i].vertex[0].index] += face_normals[i];// vertex_normals[triangles[i].vertex[0].index] + face_normals[i];
+        vertex_normals[triangles[i].vertex[1].index] += face_normals[i];//vertex_normals[triangles[i].vertex[1].index] + face_normals[i];
+        vertex_normals[triangles[i].vertex[2].index] += face_normals[i];//vertex_normals[triangles[i].vertex[2].index] + face_normals[i];
     }
 
     for (size_t i = 0; i < vertex_normals.size(); i++)
@@ -547,8 +546,8 @@ private:
     VkImageView textureImageView;
     VkSampler textureSampler;
 
-    std::vector<Vertex> vertices;
-    std::vector<uint32_t> indices;
+    std::vector<Vertex> final_vertices;
+    std::vector<uint32_t> final_indices;
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;
     VkBuffer indexBuffer;
@@ -602,8 +601,8 @@ private:
         //createTextureImage();
         //createTextureImageView();
         //createTextureSampler();
-        //loadModel_STL();
-        loadModel();
+        loadModel_STL();
+        //loadModel();
         createVertexBuffer();
         createIndexBuffer();
         createUniformBuffers();
@@ -1580,9 +1579,9 @@ private:
             face_normals[i] = cross(v0, v1);
             face_normals[i] = normalize(face_normals[i]);
 
-            vertex_normals[triangles[i].vertex[0].index] = vertex_normals[triangles[i].vertex[0].index] + face_normals[i];
-            vertex_normals[triangles[i].vertex[1].index] = vertex_normals[triangles[i].vertex[1].index] + face_normals[i];
-            vertex_normals[triangles[i].vertex[2].index] = vertex_normals[triangles[i].vertex[2].index] + face_normals[i];
+            vertex_normals[triangles[i].vertex[0].index] += face_normals[i];
+            vertex_normals[triangles[i].vertex[1].index] += face_normals[i];
+            vertex_normals[triangles[i].vertex[2].index] += face_normals[i];
         }
 
         for (size_t i = 0; i < vertex_normals.size(); i++)
@@ -1594,8 +1593,7 @@ private:
     {
         vector<triangle> t;
 
-
-        ifstream in(MODEL_PATH, ios_base::binary);
+        ifstream in("fractal.stl", ios_base::binary);
 
         if (in.fail())
             return;
@@ -1668,55 +1666,98 @@ private:
 
         get_vertex_normals_from_triangles(t, vertex_normals);
 
-        return;
-    }
-
-
-    void loadModel()
-    {
-        tinyobj::attrib_t attrib;
-        std::vector<tinyobj::shape_t> shapes;
-        std::vector<tinyobj::material_t> materials;
-        std::string warn, err;
-
-        if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH.c_str())) {
-            throw std::runtime_error(warn + err);
-        }
+       // cout << vertex_normals.size() << endl;
 
         std::map<Vertex, uint32_t, comp> uniqueVertices{};
 
-        for (const auto& shape : shapes)
+        //sort(vertex_normals.begin(), vertex_normals.end());
+
+        size_t vn_count = 0;
+
+        for (size_t i = 0; i < t.size(); i++)
         {
-            for (const auto& index : shape.mesh.indices)
+            for (size_t j = 0; j < 3; j++)
             {
                 Vertex vertex{};
 
                 vertex.pos = {
-                    attrib.vertices[3 * index.vertex_index + 0],
-                    attrib.vertices[3 * index.vertex_index + 1],
-                    attrib.vertices[3 * index.vertex_index + 2]
+                    t[i].vertex[j].x,
+                    t[i].vertex[j].y,
+                    t[i].vertex[j].z
                 };
 
-                //vertex.texCoord = {
-                //    attrib.texcoords[2 * index.texcoord_index + 0],
-                //    1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-                //};
-
-                vertex.normal = normalize(vertex.pos);// = { 1.0f, 1.0f, 1.0f };
+              //vertex.normal = normalize(vertex.pos);
 
                 if (uniqueVertices.count(vertex) == 0)
                 {
-                    uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-                    vertices.push_back(vertex);
+                    uniqueVertices[vertex] = static_cast<uint32_t>(final_vertices.size());
+
+                    //vertex.normal = normalize(vertex.pos);
+
+                    final_vertices.push_back(vertex);
+                    //final_vertices[final_vertices.size() - 1].normal = vertex_normals[uniqueVertices[uniqueVertices.size() - 1]];
                 }
 
-                indices.push_back(uniqueVertices[vertex]);
+                final_indices.push_back(uniqueVertices[vertex]);
             }
         }
+
+
+        cout << final_indices.size() << endl;
+        cout << uniqueVertices.size() << endl;
+        cout << vertex_normals.size() << endl;
+
+
+
+        return;
     }
 
+
+    //void loadModel()
+    //{
+    //    tinyobj::attrib_t attrib;
+    //    std::vector<tinyobj::shape_t> shapes;
+    //    std::vector<tinyobj::material_t> materials;
+    //    std::string warn, err;
+
+    //    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH.c_str())) {
+    //        throw std::runtime_error(warn + err);
+    //    }
+
+    //    std::map<Vertex, uint32_t, comp> uniqueVertices{};
+
+    //    for (const auto& shape : shapes)
+    //    {
+    //        for (const auto& index : shape.mesh.indices)
+    //        {
+    //            Vertex vertex{};
+
+    //            vertex.pos = {
+    //                attrib.vertices[3 * index.vertex_index + 0],
+    //                attrib.vertices[3 * index.vertex_index + 1],
+    //                attrib.vertices[3 * index.vertex_index + 2]
+    //            };
+
+    //            //vertex.texCoord = {
+    //            //    attrib.texcoords[2 * index.texcoord_index + 0],
+    //            //    1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+    //            //};
+
+    //            vertex.normal = normalize(vertex.pos);// = { 1.0f, 1.0f, 1.0f };
+
+    //            if (uniqueVertices.count(vertex) == 0)
+    //            {
+    //                uniqueVertices[vertex] = static_cast<uint32_t>(final_vertices.size());
+    //                final_vertices.push_back(vertex);
+    //            }
+
+    //            final_indices.push_back(uniqueVertices[vertex]);
+    //        }
+    //    }
+    //}
+
     void createVertexBuffer() {
-        VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+        VkDeviceSize bufferSize = sizeof(final_vertices[0]) * final_vertices.size();
 
         VkBuffer stagingBuffer;
         VkDeviceMemory stagingBufferMemory;
@@ -1724,7 +1765,7 @@ private:
 
         void* data;
         vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, vertices.data(), (size_t)bufferSize);
+        memcpy(data, final_vertices.data(), (size_t)bufferSize);
         vkUnmapMemory(device, stagingBufferMemory);
 
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
@@ -1736,7 +1777,7 @@ private:
     }
 
     void createIndexBuffer() {
-        VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+        VkDeviceSize bufferSize = sizeof(final_indices[0]) * final_indices.size();
 
         VkBuffer stagingBuffer;
         VkDeviceMemory stagingBufferMemory;
@@ -1744,7 +1785,7 @@ private:
 
         void* data;
         vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, indices.data(), (size_t)bufferSize);
+        memcpy(data, final_indices.data(), (size_t)bufferSize);
         vkUnmapMemory(device, stagingBufferMemory);
 
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
@@ -1977,7 +2018,7 @@ private:
 
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
-        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(final_indices.size()), 1, 0, 0, 0);
 
         vkCmdEndRenderPass(commandBuffer);
 
