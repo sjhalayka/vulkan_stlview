@@ -127,26 +127,21 @@ struct Vertex {
 		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
 		attributeDescriptions[1].offset = offsetof(Vertex, normal);
 
-		//attributeDescriptions[2].binding = 0;
-		//attributeDescriptions[2].location = 2;
-		//attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-		//attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
-
 		return attributeDescriptions;
 	}
 
 	bool operator==(const Vertex& other) const {
-		return pos == other.pos && normal == other.normal /*&& texCoord == other.texCoord*/;
+		return pos == other.pos && normal == other.normal;
 	}
 };
 
-namespace std {
-	template<> struct hash<Vertex> {
-		size_t operator()(Vertex const& vertex) const {
-			return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.normal) << 1)) >> 1);
-		}
-	};
-}
+//namespace std {
+//	template<> struct hash<Vertex> {
+//		size_t operator()(Vertex const& vertex) const {
+//			return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.normal) << 1)) >> 1);
+//		}
+//	};
+//}
 
 
 class comp  //custom comparator
