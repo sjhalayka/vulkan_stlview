@@ -32,8 +32,6 @@ using namespace std;
 #include "GLFW/glfw3.h"
 
 #define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/hash.hpp"
@@ -43,9 +41,6 @@ using namespace std;
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
-
-//const std::string MODEL_PATH = "fractal.stl";
-//const std::string TEXTURE_PATH = "chr_knight.png";
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -98,7 +93,6 @@ struct SwapChainSupportDetails {
 struct Vertex {
 	glm::vec3 pos;
 	glm::vec3 normal;
-	//   glm::vec2 texCoord;
 
 	static VkVertexInputBindingDescription getBindingDescription() {
 		VkVertexInputBindingDescription bindingDescription{};
@@ -129,14 +123,6 @@ struct Vertex {
 		return pos == other.pos && normal == other.normal;
 	}
 };
-
-//namespace std {
-//	template<> struct hash<Vertex> {
-//		size_t operator()(Vertex const& vertex) const {
-//			return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.normal) << 1)) >> 1);
-//		}
-//	};
-//}
 
 
 class comp  //custom comparator
