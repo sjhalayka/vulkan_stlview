@@ -404,9 +404,9 @@ void get_vertex_normals_from_triangles(vector<triangle>& triangles, vector<glm::
 		face_normals[i] = cross(v0, v1);
 		face_normals[i] = normalize(face_normals[i]);
 
-		vertex_normals[triangles[i].vertex[0].index] += face_normals[i];// vertex_normals[triangles[i].vertex[0].index] + face_normals[i];
-		vertex_normals[triangles[i].vertex[1].index] += face_normals[i];//vertex_normals[triangles[i].vertex[1].index] + face_normals[i];
-		vertex_normals[triangles[i].vertex[2].index] += face_normals[i];//vertex_normals[triangles[i].vertex[2].index] + face_normals[i];
+		vertex_normals[triangles[i].vertex[0].index] += face_normals[i];
+		vertex_normals[triangles[i].vertex[1].index] += face_normals[i];
+		vertex_normals[triangles[i].vertex[2].index] += face_normals[i];
 	}
 
 	for (size_t i = 0; i < vertex_normals.size(); i++)
