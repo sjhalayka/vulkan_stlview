@@ -1760,7 +1760,7 @@ private:
 		renderPassInfo.renderArea.extent = swapChainExtent;
 
 		std::array<VkClearValue, 2> clearValues{};
-		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+		clearValues[0].color = { {1.0f, 1.0f, 1.0f, 1.0f} };
 		clearValues[1].depthStencil = { 1.0f, 0 };
 
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -1833,13 +1833,7 @@ private:
 		ubo.view = glm::lookAt(glm::vec3(0, 0, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
 		ubo.proj[1][1] *= -1;
-		ubo.light_pos = glm::vec4(0, 0, 5, 1);
-
-		//vec3 left = cross(normalize(main_camera.eye), normalize(main_camera.up));
-		//vec3 lightPos = normalize(main_camera.eye) + normalize(main_camera.up) * 2.0f + left * 2.0f;
-		//lightPos = normalize(lightPos) * 10.0f;
-
-
+		ubo.light_pos = glm::vec4(5, 5, 5, 1);
 
 		memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 	}
