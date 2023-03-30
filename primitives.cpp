@@ -26,10 +26,9 @@ void  HelloTriangleApplication::initVulkan()
 	createCommandPool();
 	createDepthResources();
 	createFramebuffers();
-	//createTextureImage();
-	//createTextureImageView();
-	//createTextureSampler();
+
 	loadModel_STL();
+	
 	createVertexBuffer();
 	createIndexBuffer();
 	createUniformBuffers();
