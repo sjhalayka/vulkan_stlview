@@ -293,24 +293,19 @@ private:
 	void createSyncObjects();
 	void createCommandBuffers();
 
-
-	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+	void drawFrame();
 
 
 	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	void updateUniformBuffer(uint32_t currentImage);
-	void drawFrame();
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 	bool isDeviceSuitable(VkPhysicalDevice device);
-	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 
-	std::vector<const char*> getRequiredExtensions();
-	bool checkValidationLayerSupport();
 
 
 

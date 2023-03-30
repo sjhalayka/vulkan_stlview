@@ -137,3 +137,12 @@ VkCommandBuffer beginSingleTimeCommands(VkCommandPool commandPool, VkDevice devi
 void endSingleTimeCommands(VkCommandBuffer commandBuffer, VkCommandPool commandPool, VkQueue graphicsQueue, VkDevice device);
 
 
+void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, VkCommandPool commandPool, VkDevice device, VkQueue graphicsQueue);
+
+
+
+std::vector<const char*> getRequiredExtensions();
+
+bool checkValidationLayerSupport();
+
+bool checkDeviceExtensionSupport(VkPhysicalDevice device);
