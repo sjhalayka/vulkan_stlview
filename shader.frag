@@ -55,17 +55,12 @@ vec3 phongModelDiffAndSpec(bool do_specular)
 
 void main() 
 {
-//    outColor = vec4(fragColor, 1);
- //   outColor = vec4(Normal, 1);
-
-
-        vec3 diffAndSpec = phongModelDiffAndSpec(true);
-        outColor = vec4(diffAndSpec, 1.0);
-        outColor = pow( outColor, vec4(1.0 / 2.2) );
+    vec3 diffAndSpec = phongModelDiffAndSpec(true);
+    outColor = vec4(diffAndSpec, 1.0);
 
 
 
-
+// outColor = pow( outColor, vec4(1.0 / 2.2) );
 
 
 

@@ -3,6 +3,7 @@
 // https://github.com/itoral/vkdf/blob/master/demos/shadow/main.cpp
 // https://blogs.igalia.com/itoral/2017/07/30/working-with-lights-and-shadows-part-ii-the-shadow-map/
 
+// https://github.com/SaschaWillems/Vulkan/blob/master/examples/screenshot/screenshot.cpp
 
 //#define NDEBUG 1
 
