@@ -309,7 +309,7 @@ private:
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 	bool isDeviceSuitable(VkPhysicalDevice device);
 	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+	//QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 	std::vector<const char*> getRequiredExtensions();
 	bool checkValidationLayerSupport();
 	static std::vector<char> readFile(const std::string& filename);
