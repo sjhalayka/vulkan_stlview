@@ -26,6 +26,44 @@
 using namespace std;
 
 
+struct Vertex
+{
+	glm::vec3 pos;
+	glm::vec3 normal;
+
+	static VkVertexInputBindingDescription getBindingDescription()
+	{
+		VkVertexInputBindingDescription bindingDescription{};
+		bindingDescription.binding = 0;
+		bindingDescription.stride = sizeof(Vertex);
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+		return bindingDescription;
+	}
+
+	static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions()
+	{
+		std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+
+		attributeDescriptions[0].binding = 0;
+		attributeDescriptions[0].location = 0;
+		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescriptions[0].offset = offsetof(Vertex, pos);
+
+		attributeDescriptions[1].binding = 0;
+		attributeDescriptions[1].location = 1;
+		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescriptions[1].offset = offsetof(Vertex, normal);
+
+		return attributeDescriptions;
+	}
+
+	bool operator==(const Vertex& other) const
+	{
+		return pos == other.pos && normal == other.normal;
+	}
+};
+
 
 
 const uint32_t WIDTH = 800;
@@ -65,3 +103,28 @@ struct SwapChainSupportDetails {
 	std::vector<VkSurfaceFormatKHR> formats;
 	std::vector<VkPresentModeKHR> presentModes;
 };
+
+
+VkFormat findSupportedFormat(const VkPhysicalDevice& physicalDevice, const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+VkFormat findDepthFormat(const VkPhysicalDevice& physicalDevice);
+
+void recordCommandBuffer(VkRenderPass& renderPass,
+	std::vector<VkFramebuffer>& swapChainFramebuffers,
+	VkExtent2D& swapChainExtent,
+	VkPipeline& graphicsPipeline,
+	VkBuffer& vertexBuffer,
+	VkBuffer& indexBuffer,
+	VkPipelineLayout& pipelineLayout,
+	std::vector<Vertex>& final_vertices,
+	std::vector<uint32_t>& final_indices,
+	std::vector<VkDescriptorSet> descriptorSets,
+	uint32_t currentFrame,
+	VkCommandBuffer commandBuffer,
+	uint32_t imageIndex);
+
+
+bool hasStencilComponent(VkFormat format);
+
+void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
