@@ -257,13 +257,6 @@ private:
 	bool framebufferResized = false;
 
 	void initWindow();
-
-	static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
-	{
-		auto app = reinterpret_cast<HelloTriangleApplication*>(glfwGetWindowUserPointer(window));
-		app->framebufferResized = true;
-	}
-
 	void initVulkan();
 	void mainLoop();
 	void cleanupSwapChain();
@@ -292,24 +285,17 @@ private:
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 	void createSyncObjects();
 	void createCommandBuffers();
-
+	VkShaderModule createShaderModule(const std::vector<char>& code);
+	void updateUniformBuffer(uint32_t currentImage);
 	void drawFrame();
 
+	static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
+	{
+		auto app = reinterpret_cast<HelloTriangleApplication*>(glfwGetWindowUserPointer(window));
+		app->framebufferResized = true;
+	}
 
-	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-	void updateUniformBuffer(uint32_t currentImage);
-	VkShaderModule createShaderModule(const std::vector<char>& code);
-	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
-	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
-	bool isDeviceSuitable(VkPhysicalDevice device);
-
-
-
-
-	static std::vector<char> readFile(const std::string& filename);
+	std::vector<char> readFile(const std::string& filename);
 
 	void get_vertex_normals_from_triangles(vector<triangle>& triangles, map<glm::vec3, glm::vec3, comp>& vertex_normals)
 	{
