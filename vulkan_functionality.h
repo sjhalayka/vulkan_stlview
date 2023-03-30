@@ -7,6 +7,8 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/hash.hpp"
 
+#include "uv_camera.h"
+
 
 #include <iostream>
 #include <fstream>

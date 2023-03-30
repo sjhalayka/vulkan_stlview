@@ -3,6 +3,9 @@
 
 #include "vulkan_functionality.h"
 
+#include "uv_camera.h"
+
+
 
 
 
@@ -213,7 +216,7 @@ private:
 	VkSwapchainKHR swapChain;
 	std::vector<VkImage> swapChainImages;
 	VkFormat swapChainImageFormat;
-	VkExtent2D swapChainExtent;
+	static VkExtent2D swapChainExtent;
 	std::vector<VkImageView> swapChainImageViews;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
@@ -294,6 +297,67 @@ private:
 		auto app = reinterpret_cast<HelloTriangleApplication*>(glfwGetWindowUserPointer(window));
 		app->framebufferResized = true;
 	}
+
+	static uv_camera main_camera;
+
+	static float u_spacer;
+	static float v_spacer;
+	static float w_spacer;
+
+	static 	 bool lmb_down;
+	static 	 bool mmb_down;
+	static 	 bool rmb_down;
+	static 	 int mouse_x;
+	static int mouse_y;
+
+
+	static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+	{
+		int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+
+		if (state == GLFW_PRESS)
+			lmb_down = true;
+		else
+			lmb_down = false;
+
+		state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
+
+		if (state == GLFW_PRESS)
+			rmb_down = true;
+		else
+			rmb_down = false;
+
+	}
+
+	static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+	{
+		int prev_mouse_x = mouse_x;
+		int prev_mouse_y = mouse_y;
+
+		mouse_x = static_cast<int>(xpos);
+		mouse_y = static_cast<int>(ypos);
+
+		int mouse_delta_x = mouse_x - prev_mouse_x;
+		int mouse_delta_y = prev_mouse_y - mouse_y;
+
+		if (lmb_down == true)
+		{
+			main_camera.u -= static_cast<float>(mouse_delta_y) * u_spacer;
+			main_camera.v += static_cast<float>(mouse_delta_x) * v_spacer;
+		}
+
+		else if (true == rmb_down && (0 != mouse_delta_y))
+		{
+			main_camera.w -= static_cast<float>(mouse_delta_y) * w_spacer;
+
+			if (main_camera.w < 2.0f)
+				main_camera.w = 2.0f;
+			else if (main_camera.w > 20.0f)
+				main_camera.w = 20.0f;
+		}
+	}
+
+
 
 	std::vector<char> readFile(const std::string& filename);
 
@@ -509,4 +573,5 @@ private:
 
 		return;
 	}
+
 };

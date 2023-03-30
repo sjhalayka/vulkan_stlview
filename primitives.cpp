@@ -1,5 +1,18 @@
 #include "primitives.h"
 
+
+uv_camera HelloTriangleApplication::main_camera;
+VkExtent2D HelloTriangleApplication::swapChainExtent;
+float HelloTriangleApplication::u_spacer = 0.01f;
+float HelloTriangleApplication::v_spacer = 0.5f * u_spacer;
+float HelloTriangleApplication::w_spacer = 0.1f;
+bool HelloTriangleApplication::lmb_down = false;
+bool HelloTriangleApplication::mmb_down = false;
+bool HelloTriangleApplication::rmb_down = false;
+int HelloTriangleApplication::mouse_x = 0;
+int HelloTriangleApplication::mouse_y = 0;
+
+
 void HelloTriangleApplication::initWindow()
 {
 	glfwInit();
@@ -9,6 +22,8 @@ void HelloTriangleApplication::initWindow()
 	window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 	glfwSetWindowUserPointer(window, this);
 	glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
+	glfwSetCursorPosCallback(window, cursor_position_callback);
 }
 
 void  HelloTriangleApplication::initVulkan()
@@ -44,6 +59,8 @@ void HelloTriangleApplication::mainLoop()
 	{
 		glfwPollEvents();
 		drawFrame();
+
+
 	}
 
 	vkDeviceWaitIdle(device);
@@ -547,6 +564,7 @@ void HelloTriangleApplication::createFramebuffers() {
 		framebufferInfo.height = swapChainExtent.height;
 		framebufferInfo.layers = 1;
 
+
 		if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create framebuffer!");
 		}
@@ -822,14 +840,16 @@ void HelloTriangleApplication::updateUniformBuffer(uint32_t currentImage)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
+	main_camera.calculate_camera_matrices(swapChainExtent.width, swapChainExtent.height);
+
 	UniformBufferObject ubo{};
 
-	ubo.model = glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f) * time, glm::vec3(0.0f, 1.0f, 0.0f));
-	ubo.view = glm::lookAt(glm::vec3(0, 0, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
+	ubo.model = mat4(1.0f);
+	ubo.view = main_camera.view_mat;
+	ubo.proj = main_camera.projection_mat;
 	ubo.proj[1][1] *= -1;
 	ubo.light_pos = glm::vec4(5, 5, 5, 1);
-
+	
 	memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 }
 
