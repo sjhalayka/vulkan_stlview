@@ -11,7 +11,8 @@ void HelloTriangleApplication::initWindow()
 	glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 }
 
-void  HelloTriangleApplication::initVulkan() {
+void  HelloTriangleApplication::initVulkan()
+{
 	createInstance();
 	setupDebugMessenger();
 	createSurface();
@@ -29,7 +30,6 @@ void  HelloTriangleApplication::initVulkan() {
 	//createTextureImageView();
 	//createTextureSampler();
 	loadModel_STL();
-	//loadModel();
 	createVertexBuffer();
 	createIndexBuffer();
 	createUniformBuffers();

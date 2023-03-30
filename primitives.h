@@ -303,183 +303,34 @@ private:
 	}
 
 	void initVulkan();
-
 	void mainLoop();
-
 	void cleanupSwapChain();
-
 	void cleanup();
-
 	void recreateSwapChain();
-
 	void createInstance();
-
 	void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 	void setupDebugMessenger();
-
 	void createSurface();
 	void pickPhysicalDevice();
-
 	void createLogicalDevice();
-
 	void createSwapChain();
-
 	void createImageViews();
-
 	void createRenderPass();
-
 	void createDescriptorSetLayout();
-
 	void createGraphicsPipeline();
-
 	void createFramebuffers();
-
 	void createCommandPool();
-
 	void createDepthResources();
-
 	VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
-
 	VkFormat findDepthFormat();
-
 	bool hasStencilComponent(VkFormat format);
-
 	void createTextureImage();
 	void createTextureImageView();
-
 	void createTextureSampler();
-
 	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
-
 	void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
-
 	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
-
 	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
-
-
-
-	class indexed_vertex_3
-	{
-	public:
-
-		inline indexed_vertex_3(void) : x(0.0f), y(0.0f), z(0.0f), index(0) { /*default constructor*/ }
-		inline indexed_vertex_3(const float src_x, const float src_y, const float src_z, const size_t src_index) : x(src_x), y(src_y), z(src_z), index(src_index) { /* custom constructor */ }
-		inline indexed_vertex_3(const float src_x, const float src_y, const float src_z) : x(src_x), y(src_y), z(src_z), index(0) { /* custom constructor */ }
-
-		inline const void normalize(void)
-		{
-			float len = length();
-
-			if (0.0f != len)
-			{
-				x /= len;
-				y /= len;
-				z /= len;
-			}
-		}
-
-		inline const float self_dot(void)
-		{
-			return x * x + y * y + z * z;
-		}
-
-		inline const float length(void)
-		{
-			return std::sqrtf(self_dot());
-		}
-
-		inline const indexed_vertex_3& cross(const indexed_vertex_3& right) const
-		{
-			static indexed_vertex_3 temp;
-
-			temp.x = y * right.z - z * right.y;
-			temp.y = z * right.x - x * right.z;
-			temp.z = x * right.y - y * right.x;
-
-			return temp;
-		}
-
-		inline const indexed_vertex_3& operator-(const indexed_vertex_3& right) const
-		{
-			static indexed_vertex_3 temp;
-
-			temp.x = this->x - right.x;
-			temp.y = this->y - right.y;
-			temp.z = this->z - right.z;
-
-			return temp;
-		}
-
-		inline const indexed_vertex_3& operator+(const indexed_vertex_3& right) const
-		{
-			static indexed_vertex_3 temp;
-
-			temp.x = this->x + right.x;
-			temp.y = this->y + right.y;
-			temp.z = this->z + right.z;
-
-			return temp;
-		}
-
-		inline bool operator<(const indexed_vertex_3& right) const
-		{
-			if (right.x > x)
-				return true;
-			else if (right.x < x)
-				return false;
-
-			if (right.y > y)
-				return true;
-			else if (right.y < y)
-				return false;
-
-			if (right.z > z)
-				return true;
-			else if (right.z < z)
-				return false;
-
-			return false;
-		}
-
-		inline void zero(void)
-		{
-			x = y = z = 0;
-		}
-
-		inline void rotate_x(const float& radians)
-		{
-			float t_y = y;
-
-			y = t_y * cos(radians) + z * sin(radians);
-			z = t_y * -sin(radians) + z * cos(radians);
-		}
-
-		inline void rotate_y(const float& radians)
-		{
-			float t_x = x;
-
-			x = t_x * cos(radians) + z * -sin(radians);
-			z = t_x * sin(radians) + z * cos(radians);
-		}
-
-		inline void rotate_z(const float& radians)
-		{
-			float t_x = x;
-
-			x = t_x * cos(radians) + y * sin(radians);
-			y = t_x * -sin(radians) + y * cos(radians);
-		}
-
-		float x, y, z, w;
-		size_t index;
-	};
-
-	class triangle
-	{
-	public:
-		indexed_vertex_3 vertex[3];
-	};
 
 	void get_vertex_normals_from_triangles(vector<triangle>& triangles, map<glm::vec3, glm::vec3, comp>& vertex_normals)
 	{
@@ -591,11 +442,9 @@ private:
 			i->second = normalize(i->second);
 	}
 
-
 	void loadModel_STL(void)
 	{
 		vector<triangle> t;
-
 
 		ifstream in("fractal.stl", ios_base::binary);
 
