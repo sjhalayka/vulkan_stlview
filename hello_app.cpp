@@ -1,5 +1,8 @@
 #include "hello_app.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 
 uv_camera HelloTriangleApplication::main_camera;
 VkExtent2D HelloTriangleApplication::swapChainExtent;
@@ -101,6 +104,9 @@ void  HelloTriangleApplication::initVulkan()
 	createCommandPool();
 	createDepthResources();
 	createFramebuffers();
+	createTextureImage();
+	createTextureImageView();
+	createTextureSampler();
 
 	loadModel_STL();
 	
@@ -141,8 +147,7 @@ void  HelloTriangleApplication::cleanupSwapChain() {
 
 	vkDestroySwapchainKHR(device, swapChain, nullptr);
 }
-
-void  HelloTriangleApplication::cleanup() {
+void HelloTriangleApplication::cleanup() {
 	cleanupSwapChain();
 
 	vkDestroyPipeline(device, graphicsPipeline, nullptr);
@@ -725,7 +730,7 @@ void HelloTriangleApplication::createVertexBuffer() {
 
 	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 
-	copyBuffer(stagingBuffer, vertexBuffer, bufferSize, commandPool, device, graphicsQueue);
+	copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
 
 	vkDestroyBuffer(device, stagingBuffer, nullptr);
 	vkFreeMemory(device, stagingBufferMemory, nullptr);
@@ -745,7 +750,7 @@ void HelloTriangleApplication::createIndexBuffer() {
 
 	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
 
-	copyBuffer(stagingBuffer, indexBuffer, bufferSize, commandPool, device, graphicsQueue);
+	copyBuffer(stagingBuffer, indexBuffer, bufferSize);
 
 	vkDestroyBuffer(device, stagingBuffer, nullptr);
 	vkFreeMemory(device, stagingBufferMemory, nullptr);
@@ -784,6 +789,7 @@ void HelloTriangleApplication::createDescriptorPool() {
 }
 
 void HelloTriangleApplication::createDescriptorSets() {
+
 	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;

@@ -1,9 +1,12 @@
 #version 450
 
+layout(binding = 1) uniform sampler2D texSampler;
+
 layout(location = 0) in vec3 fragColor;
-layout(location = 1) in vec3 Normal;
-layout(location = 2) in vec4 LightPosition;
-layout(location = 3) in vec3 Position;
+layout(location = 1) in vec2 fragTexCoord;
+layout(location = 2) in vec3 Normal;
+layout(location = 3) in vec4 LightPosition;
+layout(location = 4) in vec3 Position;
 
 layout(location = 0) out vec4 outColor;
 
@@ -55,10 +58,10 @@ vec3 phongModelDiffAndSpec(bool do_specular)
 
 void main() 
 {
-    vec3 diffAndSpec = phongModelDiffAndSpec(true);
-    outColor = vec4(diffAndSpec, 1.0);
+   // vec3 diffAndSpec = phongModelDiffAndSpec(true);
+   // outColor = vec4(diffAndSpec, 1.0);
 
-
+     outColor = texture(texSampler, fragTexCoord);
 
 // outColor = pow( outColor, vec4(1.0 / 2.2) );
 
